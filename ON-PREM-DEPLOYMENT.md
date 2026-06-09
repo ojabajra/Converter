@@ -23,6 +23,8 @@ Internet
   Converter A       Converter B
 ```
 
+![Architecture Diagram](./HLD/onprem-architecture.jpg)
+
 ---
 
 ## 1. DNS A Record
