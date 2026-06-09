@@ -19,6 +19,8 @@ Internet
                   (only ALB SG may reach :8080)
 ```
 
+![Architecture Diagram](./HLD/aws-architecture.png)
+
 ## Resources created
 
 | File | Resources |
