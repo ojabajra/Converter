@@ -37,9 +37,11 @@ def convert(value: str, input_fmt: str, output_fmt: str) -> str:
     else:  # hex
         return hex(n)[2:]
 
+
 @app.get("/health", response_class=PlainTextResponse)
 def health():
     return "OK"
+
 
 @app.get("/convert/{value}/{input_fmt}/{output_fmt}", response_class=PlainTextResponse)
 def convert_endpoint(value: str, input_fmt: str, output_fmt: str):
@@ -65,9 +67,4 @@ def convert_endpoint(value: str, input_fmt: str, output_fmt: str):
 
 @app.get("/{full_path:path}", response_class=PlainTextResponse)
 def fallback(full_path: str):
-    return USAGE
-
-
-@app.get("/", response_class=PlainTextResponse)
-def root():
     return USAGE
