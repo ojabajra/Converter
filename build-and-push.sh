@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PROJECT_ROOT=$(dirname "$0")
+PROJECT_ROOT=$(cd "$(dirname "$0")" && pwd)
 cd "$PROJECT_ROOT/terraform"
 ECR_URL=$(terraform output -raw ecr_repository_url)
 cd "$PROJECT_ROOT"
