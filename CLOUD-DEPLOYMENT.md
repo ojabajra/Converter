@@ -1,6 +1,6 @@
 # plat-converter – Terraform Infrastructure
 
-Provisions the full AWS stack that was previously run by hand in `history.txt`.
+Provisions the full AWS stack.
 
 ## Architecture
 
