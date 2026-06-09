@@ -36,7 +36,6 @@ resource "aws_internet_gateway" "main" {
 }
 
 # ── Route Table ───────────────────────────────────────────────────────────────
-# The history used the VPC's main (default) route table, so we manage it here.
 
 resource "aws_default_route_table" "main" {
   default_route_table_id = aws_vpc.main.default_route_table_id
