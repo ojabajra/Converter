@@ -27,6 +27,14 @@ resource "aws_ecs_task_definition" "app" {
 
     essential = true
 
+    healthCheck = {
+      command     = ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/health')"]
+      interval    = 30
+      timeout     = 5
+      retries     = 3
+      startPeriod = 15
+    }
+
     logConfiguration = {
       logDriver = "awslogs"
       options = {
@@ -49,7 +57,7 @@ resource "aws_ecs_service" "app" {
   desired_count                     = var.desired_count
   launch_type                       = "FARGATE"
   platform_version                  = "LATEST"
-  health_check_grace_period_seconds = 30
+  health_check_grace_period_seconds = 60
 
   network_configuration {
     subnets          = [aws_subnet.a.id, aws_subnet.b.id]
