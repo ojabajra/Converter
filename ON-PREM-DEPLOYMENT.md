@@ -5,7 +5,7 @@
 ```
 Internet
     |
-    |  DNS A record: converter.mydomain.com -> <PUBLIC_IP>
+    |  DNS A record: *.mydomain.com -> <PUBLIC_IP>
     v
 [ Firewall ]
     |
