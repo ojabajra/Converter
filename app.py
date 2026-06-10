@@ -25,8 +25,6 @@ FORMATS = {"dec", "bin", "hex"}
 
 BASE = {"dec": 10, "bin": 2, "hex": 16}
 
-PREFIX = {"dec": "", "bin": "", "hex": ""}
-
 
 def convert(value: str, input_fmt: str, output_fmt: str) -> str:
     n = int(value, BASE[input_fmt])
