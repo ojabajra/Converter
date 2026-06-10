@@ -3,28 +3,49 @@
 resource "aws_vpc" "main" {
   cidr_block           = "10.0.0.0/16"
   enable_dns_hostnames = true
+  enable_dns_support   = true
 
   tags = { Name = "${var.app_name}-vpc" }
 }
 
-# ── Subnets ───────────────────────────────────────────────────────────────────
+# ── Public Subnets (ALB) ──────────────────────────────────────────────────────
 
-resource "aws_subnet" "a" {
+resource "aws_subnet" "public_a" {
   vpc_id                  = aws_vpc.main.id
   cidr_block              = "10.0.1.0/24"
   availability_zone       = "${var.aws_region}a"
   map_public_ip_on_launch = true
 
-  tags = { Name = "${var.app_name}-subnet-a" }
+  tags = { Name = "${var.app_name}-public-subnet-a" }
 }
 
-resource "aws_subnet" "b" {
+resource "aws_subnet" "public_b" {
   vpc_id                  = aws_vpc.main.id
   cidr_block              = "10.0.2.0/24"
   availability_zone       = "${var.aws_region}b"
   map_public_ip_on_launch = true
 
-  tags = { Name = "${var.app_name}-subnet-b" }
+  tags = { Name = "${var.app_name}-public-subnet-b" }
+}
+
+# ── Private Subnets (ECS) ─────────────────────────────────────────────────────
+
+resource "aws_subnet" "private_a" {
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = "10.0.3.0/24"
+  availability_zone       = "${var.aws_region}a"
+  map_public_ip_on_launch = false
+
+  tags = { Name = "${var.app_name}-private-subnet-a" }
+}
+
+resource "aws_subnet" "private_b" {
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = "10.0.4.0/24"
+  availability_zone       = "${var.aws_region}b"
+  map_public_ip_on_launch = false
+
+  tags = { Name = "${var.app_name}-private-subnet-b" }
 }
 
 # ── Internet Gateway ──────────────────────────────────────────────────────────
@@ -35,9 +56,9 @@ resource "aws_internet_gateway" "main" {
   tags = { Name = "${var.app_name}-igw" }
 }
 
-# ── Route Table ───────────────────────────────────────────────────────────────
+# ── Public Route Table (ALB subnets) ──────────────────────────────────────────
 
-resource "aws_default_route_table" "main" {
+resource "aws_default_route_table" "public" {
   default_route_table_id = aws_vpc.main.default_route_table_id
 
   route {
@@ -45,7 +66,27 @@ resource "aws_default_route_table" "main" {
     gateway_id = aws_internet_gateway.main.id
   }
 
-  tags = { Name = "${var.app_name}-rt" }
+  tags = { Name = "${var.app_name}-public-rt" }
+}
+
+# ── Private Route Table (ECS subnets) ─────────────────────────────────────────
+
+resource "aws_route_table" "private" {
+  vpc_id = aws_vpc.main.id
+  //no internet route; the only routes present are the VPC local route (added automatically by AWS)
+  //and the S3 prefix list route injected by the S3 Gateway endpoint
+
+  tags = { Name = "${var.app_name}-private-rt" }
+}
+
+resource "aws_route_table_association" "private_a" {
+  subnet_id      = aws_subnet.private_a.id
+  route_table_id = aws_route_table.private.id
+}
+
+resource "aws_route_table_association" "private_b" {
+  subnet_id      = aws_subnet.private_b.id
+  route_table_id = aws_route_table.private.id
 }
 
 # ── Security Groups ───────────────────────────────────────────────────────────

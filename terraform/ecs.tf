@@ -60,9 +60,9 @@ resource "aws_ecs_service" "app" {
   health_check_grace_period_seconds = 60
 
   network_configuration {
-    subnets          = [aws_subnet.a.id, aws_subnet.b.id]
+    subnets          = [aws_subnet.private_a.id, aws_subnet.private_b.id]
     security_groups  = [aws_security_group.ecs.id]
-    assign_public_ip = true
+    assign_public_ip = false
   }
 
   load_balancer {
@@ -74,10 +74,15 @@ resource "aws_ecs_service" "app" {
   deployment_minimum_healthy_percent = 50
   deployment_maximum_percent         = 200
 
-  # Ensure the listener and IAM role are ready before the service starts.
+  # Ensure the listener, IAM role, and VPC endpoints are all ready before tasks start.
+  # Without the endpoints, tasks with no public IP cannot reach ECR or CloudWatch.
   depends_on = [
     aws_lb_listener.http,
     aws_iam_role_policy_attachment.ecs_execution,
+    aws_vpc_endpoint.ecr_api,
+    aws_vpc_endpoint.ecr_dkr,
+    aws_vpc_endpoint.s3,
+    aws_vpc_endpoint.cloudwatch_logs,
   ]
 
   tags = { Name = "${var.app_name}-service" }
